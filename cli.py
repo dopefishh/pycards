@@ -2,7 +2,6 @@
 
 import argparse
 import os
-import database
 import pycards
 
 if __name__ == '__main__':
@@ -11,7 +10,7 @@ if __name__ == '__main__':
     start a session:
         %(prog)s [opts] entry-name
     import a file:
-        %(prog)s -f filename
+        %(prog)s -f deckname filename
     list files in the database:
         %(prog)s -ls""")
 
@@ -37,7 +36,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--version', action='version',
                         version='%(prog)s {}'.format(pycards.__version__))
-    parser.add_argument('file', nargs='?', default='',
+    parser.add_argument('ifile', nargs='?', default='',
                         help='deck to play from the database')
     args = vars(parser.parse_args())
 
@@ -52,7 +51,8 @@ if __name__ == '__main__':
 
     args['ddir'] = os.path.abspath(os.path.expanduser(args['ddir']))
     args['config'] = os.path.abspath(os.path.expanduser(args['config']))
-    args['file'] = os.path.abspath(os.path.expanduser(args['file']))
+    args['ifile'] = '' if not args['ifile'] else\
+        os.path.abspath(os.path.expanduser(args['ifile']))
 
     try:
         os.makedirs(args['ddir'])
@@ -61,10 +61,18 @@ if __name__ == '__main__':
             raise e
 
     if args['list']:
-        pycards.list_decks(**args)
-    elif args['load_from']:
-        print('loading file...')
-    elif args['file']:
+        numdecks = 0
+        for deck in pycards.list_decks(**args):
+            print(deck)
+            numdecks += 1
+        print('Total {} decks.'.format(numdecks))
+    elif args['load_from'] and args['ifile']:
+        ok, msg = pycards.load_from_file(**args)
+        if not ok:
+            print('Something went wrong: {}'.format(msg))
+        else:
+            print('Deck succesfully added')
+    elif args['ifile']:
         print('playing deck...')
     else:
         parser.print_help()
