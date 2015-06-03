@@ -12,7 +12,16 @@ def list_decks(ddir, **kwargs):
 
 def load_from_file(ddir, load_from, ifile, **args):
     db = Database(os.path.join(ddir, 'pycards.db'))
-    return db.setup_deck(load_from)
+    dbname = db.setup_deck(load_from)
+    startid = 0
+    with open(ifile, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if line and line[0] != '#':
+                a, b = line.split('\t')
+                startid += 1
+                db.add_word(dbname, startid, a, b)
+    return (True, '')
 
 
 class Database:
@@ -30,14 +39,9 @@ class Database:
     def __init__(self, filepath):
         self.sq = sqlite3.connect(filepath)
         c = self.sq.cursor()
-        try:
-            c.execute("""CREATE TABLE decks(
-                id INTEGER,
-                file_path TEXT,
-                name TEXT)""")
-        except sqlite3.OperationalError as e:
-            if e.args != ('table decks already exists',):
-                raise e
+        c.execute("""CREATE TABLE IF NOT EXISTS decks(
+           id INTEGER,
+           name TEXT UNIQUE)""")
         self.sq.commit()
 
     def setup_deck(self, name):
@@ -45,26 +49,24 @@ class Database:
         error message.
         """
         c = self.sq.cursor()
-        try:
-            c.execute("""CREATE TABLE "words_{}" (
-                id INTEGER,
-                a TEXT,
-                b TEXT,
-                times INTEGER,
-                times_correct INTEGER,
-                box INTEGER)""".format(name))
-        except sqlite3.OperationalError as e:
-            if ('table "{}" already exists'.format(name),) != e.args:
-                return (False, 'Deck with that name already exists')
-            else:
-                raise e
+        dbname = 'words_{}'.format(name)
+        _id = 0
+        c.execute("""CREATE TABLE IF NOT EXISTS "{}" (
+            id INTEGER UNIQUE,
+            a TEXT,
+            b TEXT,
+            times INTEGER,
+            times_correct INTEGER,
+            box INTEGER)""".format(dbname))
+        c.execute('INSERT OR IGNORE INTO decks values(0, "{}")'.format(name))
         self.sq.commit()
-        return (True, '')
+        return dbname
 
-    def add_words(self, name, _id, a, b):
+    def add_word(self, name, _id, a, b):
         c = self.sq.cursor()
-        c.execute('INSERT INTO "words_{}" (?,?,?,0,0,0)'.format(name),
-                  (name, _id, a, b))
+        c.execute('INSERT OR IGNORE INTO {} values({},"{}","{}",0,0,0)'.format(
+            name, _id, a, b))
+        self.sq.commit()
 
     def list_decks(self):
         c = self.sq.cursor()
