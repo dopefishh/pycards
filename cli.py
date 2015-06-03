@@ -3,42 +3,48 @@
 import argparse
 import os
 import pycards
+import logging
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description='pycards: a python flashcard engine', usage="""
-    start a session:
-        %(prog)s [opts] entry-name
-    import a file:
-        %(prog)s -f deckname filename
-    list files in the database:
-        %(prog)s -ls""")
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers()
 
     parser.add_argument('-c', '--config', default='~/.pycards/config',
-                        help='location of the configuration file.')
-    parser.add_argument('-d', '--ddir', default='~/.pycards',
-                        help='location of the data directory.')
-    parser.add_argument('-i', '--interface', choices=['cli', 'web'],
-                        default='cli', help='type of interface.')
-    parser.add_argument('-s', '--system', choices=['leit', 'random', 'order'],
-                        default='random', help='type of flashcard system.')
-    parser.add_argument('-o', action='store_true',
-                        help='shortcut for --system order')
-    parser.add_argument('-l', action='store_true',
-                        help='shortcut for --system leitner')
-    parser.add_argument('-r', action='store_true',
-                        help='shortcut for --system random')
-
-    parser.add_argument('-f', '--load-from',
-                        help='load a file into the database.')
-    parser.add_argument('-ls', '--list', action='store_true',
-                        help='list decks in the database.')
-
+                        help='custom config file')
+    parser.add_argument('-d', '--database', default='~/.pycards/pycards.db',
+                        help='custom database file')
+    parser.add_argument('-l', '--loglevel', default='SILENT',
+                        choices=['INFO', 'DEBUG', 'SILENT'],
+                        help='set loglevel to INFO DEBUG or SILENT')
+    parser.add_argument('-f', '--logfile', default=None,
+                        help='log file location')
     parser.add_argument('--version', action='version',
                         version='%(prog)s {}'.format(pycards.__version__))
-    parser.add_argument('ifile', nargs='?', default='',
-                        help='deck to play from the database')
+    parser.set_defaults(which='all')
+
+    list_parser = subparsers.add_parser('list', help='show decks or deck')
+    list_parser.add_argument('deckname', nargs='?',
+                             help='name of the deck to show')
+    list_parser.add_argument('-e', '--show-entries', action='store_true',
+                             help='also print all entries')
+    list_parser.set_defaults(which='list')
+
+    load_parser = subparsers.add_parser('load', help='load a file as deck')
+    load_parser.add_argument('filepath', help='file to load from. - for stdin')
+    load_parser.add_argument('deckname', help='name for the deck')
+    load_parser.set_defaults(which='load')
+
+    session_parser = subparsers.add_parser('session', help='practise session')
+    session_parser.add_argument('deckname', help='name of the deck')
+    session_parser.set_defaults(which='session')
+
+    remove_parser = subparsers.add_parser('remove', help='remove a deck')
+    remove_parser.add_argument('deckname', help='name of the deck')
+    remove_parser.set_defaults(which='remove')
+
     args = vars(parser.parse_args())
+    args['database'] = os.path.abspath(os.path.expanduser(args['database']))
+    args['config'] = os.path.abspath(os.path.expanduser(args['config']))
 
     with open(args['config'], 'r') as cin:
         for line in [l.strip() for l in cin]:
@@ -49,30 +55,34 @@ if __name__ == '__main__':
                 else:
                     print('Couldn\'t parse "{}"\nSkipping...\n'.format(line))
 
-    args['ddir'] = os.path.abspath(os.path.expanduser(args['ddir']))
-    args['config'] = os.path.abspath(os.path.expanduser(args['config']))
-    args['ifile'] = '' if not args['ifile'] else\
-        os.path.abspath(os.path.expanduser(args['ifile']))
-
     try:
-        os.makedirs(args['ddir'])
+        os.makedirs(os.path.dirname(args['database']))
     except OSError as e:
         if e.errno != 17:
             raise e
 
-    if args['list']:
-        numdecks = 0
+    if args['loglevel'] == 'INFO':
+        args['loglevel'] = logging.INFO
+    elif args['loglevel'] == 'DEBUG':
+        args['loglevel'] = logging.DEBUG
+    elif args['loglevel'] == 'SILENT':
+        args['loglevel'] = logging.WARNING
+
+    pycards.setup_logger(**args)
+
+    if args['which'] == 'list':
         for deck in pycards.list_decks(**args):
-            print(deck)
-            numdecks += 1
-        print('Total {} decks.'.format(numdecks))
-    elif args['load_from'] and args['ifile']:
-        ok, msg = pycards.load_from_file(**args)
-        if not ok:
-            print('Something went wrong: {}'.format(msg))
-        else:
-            print('Deck succesfully added')
-    elif args['ifile']:
-        print('playing deck...')
+            print('name      : {}'.format(deck['name']))
+            print('date_added: {}'.format(deck['date_added']))
+            if args['show_entries']:
+                print('entries: (id,a,b,times,times_correct,box)\n{}'.format(
+                    '\n'.join(map(str, deck['entries']))))
+            print()
+    elif args['which'] == 'load':
+        pycards.load_from_file(**args)
+    elif args['which'] == 'remove':
+        print('remove' + str(args))
+    elif args['which'] == 'session':
+        print('session' + str(args))
     else:
         parser.print_help()
