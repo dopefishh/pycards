@@ -1,9 +1,9 @@
-import os
 import sqlite3
 import time
 import logging
 
 __version__ = '0.1'
+
 
 def setup_logger(logfile, loglevel, **k):
     """Setup the logger
@@ -42,15 +42,14 @@ def get_word_db(name):
     return '"words_{}"'.format(name)
 
 
-def list_decks(database, show_entries, **k):
+def list_decks(database, **k):
     """List the decks optionally with their entries
 
     arguments:
     database     - filepath for the sqlite database file
-    show_entries - flag to enable listing the individial entries
     deckname     - name of the deck to list, if None all decks are shown
 
-    returns: [deck] 
+    returns: [deck]
         where deck = {name, date_added, entries}
         where entries = [(id, a, b, times, times_correct, box)]
     """
@@ -71,18 +70,17 @@ def list_decks(database, show_entries, **k):
     return decks
 
 
-def load_from_file(database, filepath, deckname, **k):
+def load_from_file(lines, database, deckname, **k):
     """Import a deck from a file
 
     arguments:
+    lines    - generator for lines of input
     database - filepath for the sqlite database file
-    filepath - filepath for the deck file
     deckname - name of the deck to load in in
     """
     logging.info('load from file...')
     sq, c = get_db(database)
     dbname = get_word_db(deckname)
-    _id = 0
     q = 'CREATE TABLE IF NOT EXISTS {} (id INTEGER UNIQUE, a TEXT, b TEXT,'\
         'times INTEGER, times_correct INTEGER, box INTEGER)'.format(dbname)
     logging.info('creating deck table')
@@ -95,16 +93,59 @@ def load_from_file(database, filepath, deckname, **k):
     c.execute(q)
 
     startid = 0
-    with open(filepath, 'r') as f:
-        logging.info('opened {}'.format(f))
-        for line in f:
-            line = line.strip()
-            if line and line[0] != '#':
-                a, b = line.split('\t')
-                startid += 1
-                q = 'INSERT OR IGNORE INTO {} values({},"{}","{}",0,0,0)'.\
-                    format(dbname, startid, a, b)
-                logging.debug('inserting entry\nwith query: {}'.format(q))
-                c.execute(q)
+    for line in lines:
+        line = line.strip()
+        if line and line[0] != '#':
+            a, b = line.split('\t')
+            startid += 1
+            q = 'INSERT OR IGNORE INTO {} values({},"{}","{}",0,0,0)'.\
+                format(dbname, startid, a, b)
+            logging.debug('inserting entry\nwith query: {}'.format(q))
+            c.execute(q)
     sq.commit()
     sq.close()
+
+
+def remove_deck(database, deckname, **k):
+    """Remove a deck from the database
+
+    arguments:
+    database - filepath for the sqlite database file
+    deckname - name of the deck to load in in
+    """
+    logging.info('remove deck...')
+    sq, c = get_db(database)
+    q = 'DROP TABLE IF EXISTS {}'.format(get_word_db(deckname))
+    logging.info('removing table {}'.format(deckname))
+    logging.debug('with query: {}'.format(q))
+    c.execute(q)
+    q = 'DELETE FROM decks WHERE decks.name = "{}"'.format(deckname)
+    logging.info('remove intry from decks table')
+    logging.debug('with query: {}'.format(q))
+    c.execute(q)
+    sq.commit()
+    sq.close()
+
+
+def export_deck(database, deckname, **k):
+    """Export a deck from the database
+
+    arguments:
+    database - filepath for the sqlite database file
+    deckname - name of the deck to load in in
+
+    yields: lines
+    """
+    logging.info('exporting deck...')
+    sq, c = get_db(database)
+    logging.info('getting deck information')
+    decks = list_decks(database, **k)
+    deck = [d for d in decks if d['name'] == deckname]
+    if not deck:
+        logging.warning('deck not found')
+    else:
+        for entry in deck[0]['entries']:
+            if entry:
+                s = '{}\t{}\n'.format(entry[1], entry[2])
+                logging.debug('yielding: {}'.format(s))
+                yield s

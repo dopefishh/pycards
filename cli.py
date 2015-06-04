@@ -1,9 +1,11 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 import argparse
 import os
 import pycards
 import logging
+import sys
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -30,17 +32,22 @@ if __name__ == '__main__':
     list_parser.set_defaults(which='list')
 
     load_parser = subparsers.add_parser('load', help='load a file as deck')
-    load_parser.add_argument('filepath', help='file to load from. - for stdin')
     load_parser.add_argument('deckname', help='name for the deck')
+    load_parser.add_argument('filepath', nargs='?', help='file to load from')
     load_parser.set_defaults(which='load')
-
-    session_parser = subparsers.add_parser('session', help='practise session')
-    session_parser.add_argument('deckname', help='name of the deck')
-    session_parser.set_defaults(which='session')
 
     remove_parser = subparsers.add_parser('remove', help='remove a deck')
     remove_parser.add_argument('deckname', help='name of the deck')
     remove_parser.set_defaults(which='remove')
+
+    export_parser = subparsers.add_parser('export', help='export a deck')
+    export_parser.add_argument('deckname', help='name of the deck')
+    export_parser.add_argument('filepath', nargs='?', help='file to export to')
+    export_parser.set_defaults(which='export')
+
+    session_parser = subparsers.add_parser('session', help='practise session')
+    session_parser.add_argument('deckname', help='name of the deck')
+    session_parser.set_defaults(which='session')
 
     args = vars(parser.parse_args())
     args['database'] = os.path.abspath(os.path.expanduser(args['database']))
@@ -61,27 +68,39 @@ if __name__ == '__main__':
         if e.errno != 17:
             raise e
 
-    if args['loglevel'] == 'INFO':
-        args['loglevel'] = logging.INFO
-    elif args['loglevel'] == 'DEBUG':
-        args['loglevel'] = logging.DEBUG
-    elif args['loglevel'] == 'SILENT':
-        args['loglevel'] = logging.WARNING
+    args['loglevel'] = logging.INFO if args['loglevel'] == 'INFO' else\
+        logging.DEBUG if args['loglevel'] == 'DEBUG' else logging.WARNING
 
     pycards.setup_logger(**args)
 
     if args['which'] == 'list':
         for deck in pycards.list_decks(**args):
-            print('name      : {}'.format(deck['name']))
-            print('date_added: {}'.format(deck['date_added']))
+            print('name       : {}'.format(deck['name']))
+            print('date_added : {}'.format(deck['date_added']))
+            print('num_entries: {}'.format(len(deck['entries'])))
             if args['show_entries']:
                 print('entries: (id,a,b,times,times_correct,box)\n{}'.format(
                     '\n'.join(map(str, deck['entries']))))
             print()
     elif args['which'] == 'load':
-        pycards.load_from_file(**args)
+        if not args['filepath'] or args['filepath'] == '-':
+            fin = sys.stdin
+        else:
+            fin = open(args['filepath'], 'r')
+        pycards.load_from_file(fin, **args)
+        if fin != sys.stdin:
+            fin.close()
     elif args['which'] == 'remove':
-        print('remove' + str(args))
+        pycards.remove_deck(**args)
+    elif args['which'] == 'export':
+        if not args['filepath'] or args['filepath'] == '-':
+            fout = sys.stdout
+        else:
+            fout = open(args['filepath'], 'w')
+        for line in pycards.export_deck(**args):
+            fout.write(line)
+        if fout != sys.stdout:
+            fout.close()
     elif args['which'] == 'session':
         print('session' + str(args))
     else:
