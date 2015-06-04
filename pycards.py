@@ -12,9 +12,11 @@ def setup_logger(logfile, loglevel, **k):
     logfile : file to log to, None for stdout
     loglevel: level to log in
     """
+    f = '%(levelno)s\t%(lineno)d\t%(asctime)s\t%(message)s'
     if logfile:
-        logging.basicConfig(filename=logfile, level=loglevel)
-    logging.basicConfig(level=loglevel)
+        logging.basicConfig(format=f, filename=logfile, level=loglevel)
+    else:
+        logging.basicConfig(format=f, level=loglevel)
     logging.debug('Logger initialized')
 
 
