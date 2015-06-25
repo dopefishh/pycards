@@ -47,20 +47,26 @@ if __name__ == '__main__':
 
     session_parser = subparsers.add_parser('session', help='practise session')
     session_parser.add_argument('deckname', help='name of the deck')
+    session_parser.add_argument('-s', '--system', default='order',
+                                choices=['order', 'random', 'leitner'],
+                                help='set questioning system')
+    session_parser.add_argument('-i', '--inverse', action='store_true',
+                                help='inverse the question and the answer')
     session_parser.set_defaults(which='session')
 
-    args = vars(parser.parse_args())
-    args['database'] = os.path.abspath(os.path.expanduser(args['database']))
-    args['config'] = os.path.abspath(os.path.expanduser(args['config']))
-
-    with open(args['config'], 'r') as cin:
+    pargs = parser.parse_args()
+    args = {}
+    with open(pargs.config, 'r') as cin:
         for line in [l.strip() for l in cin]:
             if line and line[0] != '#':
                 items = line.split('=')
                 if len(items) > 1:
-                    args[items[0]] = '='.join(items[1:])
+                    args[items[0].strip()] = '='.join(items[1:]).strip()
                 else:
                     print('Couldn\'t parse "{}"\nSkipping...\n'.format(line))
+    args.update(vars(pargs))
+    args['database'] = os.path.abspath(os.path.expanduser(args['database']))
+    args['config'] = os.path.abspath(os.path.expanduser(args['config']))
 
     try:
         os.makedirs(os.path.dirname(args['database']))
@@ -102,6 +108,9 @@ if __name__ == '__main__':
         if fout != sys.stdout:
             fout.close()
     elif args['which'] == 'session':
-        print('session' + str(args))
+        session = pycards.session(**args)
+        for s in session:
+            answer = input(s + ': ')
+            print(session.answer_current(answer))
     else:
         parser.print_help()

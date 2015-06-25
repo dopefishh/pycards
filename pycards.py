@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
+
 import sqlite3
 import time
 import logging
+import random
 
 __version__ = '0.1'
 
@@ -42,7 +45,7 @@ def get_word_db(name):
     return '"words_{}"'.format(name)
 
 
-def list_decks(database, **k):
+def list_decks(database, deckname, **k):
     """List the decks optionally with their entries
 
     arguments:
@@ -60,12 +63,13 @@ def list_decks(database, **k):
     logging.info('getting deck information')
     logging.debug('with query: {}'.format(q))
     for date, name in c.execute(q):
-        decks.append({'name': name, 'date_added': date, 'entries': []})
-        q = 'SELECT * FROM {}'.format(get_word_db(name))
-        logging.info('getting entries information')
-        logging.debug('with query: {}'.format(q))
-        for entry in c.execute(q):
-            decks[-1]['entries'].append(entry)
+        if not deckname or deckname == name:
+            decks.append({'name': name, 'date_added': date, 'entries': []})
+            q = 'SELECT * FROM {}'.format(get_word_db(name))
+            logging.info('getting entries information')
+            logging.debug('with query: {}'.format(q))
+            for entry in c.execute(q):
+                decks[-1]['entries'].append(entry)
     sq.close()
     return decks
 
@@ -149,3 +153,51 @@ def export_deck(database, deckname, **k):
                 s = '{}\t{}\n'.format(entry[1], entry[2])
                 logging.debug('yielding: {}'.format(s))
                 yield s
+
+class Session:
+    def __init__(self, system, inverse, entries, name, **k):
+        self.name = name
+        self.entries = entries
+        self.inverse = inverse
+        self.system = system
+        self.current = None
+        if self.system == 'random':
+            logging.info('Shuffled entries for random mode')
+            random.shuffle(self.entries)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.entries:
+            if self.system == 'leitner':
+                self.current = self.entries.pop(0)[1:3]
+            else:
+                self.current = self.entries.pop(0)[1:3]
+            return self.current[self.get_question_index()]
+        else:
+            raise StopIteration
+
+    def get_question_index(self):
+        return 1 if self.inverse else 0
+
+    def get_answer_index(self):
+        return 0 if self.inverse else 1
+
+    def answer_current(self, answer):
+        if self.current == None:
+            logging.warning('Nothing to be answered, nothing has been asked')
+        correctanswer = self.current[self.get_answer_index()]
+        logging.info('comparing {} with {}'.format(answer, correctanswer))
+        correct = answer == correctanswer
+        self.current = None
+        return correct
+
+
+def session(database, deckname, system, inverse, **k):
+    logging.info('starting session')
+    deck = list_decks(database, deckname)
+    if not deck:
+        logging.warning('deck not found')
+    else:
+        return Session(system, inverse, **deck[0])
