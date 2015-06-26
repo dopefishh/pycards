@@ -32,6 +32,9 @@ if __name__ == '__main__':
     list_parser.set_defaults(which='list')
 
     load_parser = subparsers.add_parser('load', help='load a file as deck')
+    load_parser.add_argument('-e', '--encoding', 
+                             default=sys.getdefaultencoding(),
+                             help='encoding for the input')
     load_parser.add_argument('deckname', help='name for the deck')
     load_parser.add_argument('filepath', nargs='?', help='file to load from')
     load_parser.set_defaults(which='load')

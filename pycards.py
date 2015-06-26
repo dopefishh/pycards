@@ -74,7 +74,7 @@ def list_decks(database, deckname, **k):
     return decks
 
 
-def load_from_file(lines, database, deckname, **k):
+def load_from_file(lines, database, deckname, encoding, **k):
     """Import a deck from a file
 
     arguments:
@@ -82,7 +82,7 @@ def load_from_file(lines, database, deckname, **k):
     database - filepath for the sqlite database file
     deckname - name of the deck to load in in
     """
-    logging.info('load from file...')
+    logging.info('load from file... in codec {}'.format(encoding))
     sq, c = get_db(database)
     dbname = get_word_db(deckname)
     q = 'CREATE TABLE IF NOT EXISTS {} (id INTEGER UNIQUE, a TEXT, b TEXT,'\
@@ -102,10 +102,10 @@ def load_from_file(lines, database, deckname, **k):
         if line and line[0] != '#':
             a, b = line.split('\t')
             startid += 1
-            q = 'INSERT OR IGNORE INTO {} values({},"{}","{}",0,0,0)'.\
-                format(dbname, startid, a, b)
+            q = 'INSERT OR IGNORE INTO {} values({},?,?,0,0,0)'.\
+                format(dbname, startid)
             logging.debug('inserting entry\nwith query: {}'.format(q))
-            c.execute(q)
+            c.execute(q, (a.decode(encoding), b.decode(encoding)))
     sq.commit()
     sq.close()
 
