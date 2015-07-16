@@ -15,14 +15,14 @@ little useful.
 - Graphical user interface
 
 ###Changelog
-*Version 0.2*
+*[Version 0.2](https://github.com/dopefishh/pycards/releases/tag/v0.2)*
 - List deck(s) either with or without all the entries.
 - Remove a deck.
 - Export to a file.
 - Load a deck from tab separated files with two columns.
 - Play a session with a deck and different systems: ordered, random.
 
-*Version 0.1*
+*[Version 0.1](https://github.com/dopefishh/pycards/releases/tag/v0.1)*
 - Initial version
 
 ###LICENCE
