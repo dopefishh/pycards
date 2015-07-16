@@ -2,9 +2,9 @@
 
 ###Introduction
 *pycards* is a engine with different frontends to memorize things using
-(flashcards)[http://en.wikipedia.org/wiki/Flashcard]. *pycards* is written in
-(Python 3)[https://www.python.org/] and uses a
-(sqlite)[https://www.sqlite.org/] database to store all the data. It is a
+[flashcards](http://en.wikipedia.org/wiki/Flashcard). *pycards* is written in
+[Python 3](https://www.python.org) and uses a
+[sqlite](https://www.sqlite.org/) database to store all the data. It is a
 little useful.
 
 ###TODO, in order of importance
