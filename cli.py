@@ -9,7 +9,7 @@ import sys
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(dest='which')
 
     parser.add_argument('-c', '--config', default='~/.pycards/config',
                         help='custom config file')
@@ -30,6 +30,7 @@ if __name__ == '__main__':
     list_parser.add_argument('-e', '--show-entries', action='store_true',
                              help='also print all entries')
     list_parser.set_defaults(which='list')
+    list_parser.required = True
 
     load_parser = subparsers.add_parser('load', help='load a file as deck')
     load_parser.add_argument('-e', '--encoding', 
@@ -38,15 +39,18 @@ if __name__ == '__main__':
     load_parser.add_argument('deckname', help='name for the deck')
     load_parser.add_argument('filepath', nargs='?', help='file to load from')
     load_parser.set_defaults(which='load')
+    load_parser.required = True
 
     remove_parser = subparsers.add_parser('remove', help='remove a deck')
     remove_parser.add_argument('deckname', help='name of the deck')
     remove_parser.set_defaults(which='remove')
+    remove_parser.required = True
 
     export_parser = subparsers.add_parser('export', help='export a deck')
     export_parser.add_argument('deckname', help='name of the deck')
     export_parser.add_argument('filepath', nargs='?', help='file to export to')
     export_parser.set_defaults(which='export')
+    export_parser.required = True
 
     session_parser = subparsers.add_parser('session', help='practise session')
     session_parser.add_argument('deckname', help='name of the deck')
@@ -56,6 +60,7 @@ if __name__ == '__main__':
     session_parser.add_argument('-i', '--inverse', action='store_true',
                                 help='inverse the question and the answer')
     session_parser.set_defaults(which='session')
+    session_parser.required = True
 
     pargs = parser.parse_args()
     args = {}
@@ -95,7 +100,7 @@ if __name__ == '__main__':
         if not args['filepath'] or args['filepath'] == '-':
             fin = sys.stdin
         else:
-            fin = open(args['filepath'], 'r')
+            fin = open(args['filepath'], 'r', encoding=args['encoding'])
         pycards.load_from_file(fin, **args)
         if fin != sys.stdin:
             fin.close()
@@ -111,9 +116,12 @@ if __name__ == '__main__':
         if fout != sys.stdout:
             fout.close()
     elif args['which'] == 'session':
-        session = pycards.session(**args)
-        for s in session:
+        ses = pycards.session(**args)
+        for s in ses:
             answer = input(s + ': ')
-            print(session.answer_current(answer))
+            if ses.answer_current(answer):
+                print('correct!')
+            else:
+                print('incorrect, it had to be: "{}"'.format(ses.answer))
     else:
         parser.print_help()

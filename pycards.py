@@ -56,13 +56,14 @@ def list_decks(database, deckname, **k):
         where deck = {name, date_added, entries}
         where entries = [(id, a, b, times, times_correct, box)]
     """
-    logging.info('list decks...')
+    logging.info('list decks... with name: {}'.format(deckname))
     sq, c = get_db(database)
     decks = []
     q = 'SELECT * FROM decks'
     logging.info('getting deck information')
     logging.debug('with query: {}'.format(q))
-    for date, name in c.execute(q):
+    datenames = list(c.execute(q))
+    for date, name in datenames:
         if not deckname or deckname == name:
             decks.append({'name': name, 'date_added': date, 'entries': []})
             q = 'SELECT * FROM {}'.format(get_word_db(name))
@@ -74,7 +75,7 @@ def list_decks(database, deckname, **k):
     return decks
 
 
-def load_from_file(lines, database, deckname, encoding, **k):
+def load_from_file(lines, database, deckname, **k):
     """Import a deck from a file
 
     arguments:
@@ -82,7 +83,7 @@ def load_from_file(lines, database, deckname, encoding, **k):
     database - filepath for the sqlite database file
     deckname - name of the deck to load in in
     """
-    logging.info('load from file... in codec {}'.format(encoding))
+    logging.info('load from file...')
     sq, c = get_db(database)
     dbname = get_word_db(deckname)
     q = 'CREATE TABLE IF NOT EXISTS {} (id INTEGER UNIQUE, a TEXT, b TEXT,'\
@@ -97,6 +98,7 @@ def load_from_file(lines, database, deckname, encoding, **k):
     c.execute(q)
 
     startid = 0
+    logging.info('inserting from {}'.format(lines))
     for line in lines:
         line = line.strip()
         if line and line[0] != '#':
@@ -105,7 +107,7 @@ def load_from_file(lines, database, deckname, encoding, **k):
             q = 'INSERT OR IGNORE INTO {} values({},?,?,0,0,0)'.\
                 format(dbname, startid)
             logging.debug('inserting entry\nwith query: {}'.format(q))
-            c.execute(q, (a.decode(encoding), b.decode(encoding)))
+            c.execute(q, (a, b))
     sq.commit()
     sq.close()
 
@@ -143,7 +145,7 @@ def export_deck(database, deckname, **k):
     logging.info('exporting deck...')
     sq, c = get_db(database)
     logging.info('getting deck information')
-    decks = list_decks(database, **k)
+    decks = list_decks(database, deckname, **k)
     deck = [d for d in decks if d['name'] == deckname]
     if not deck:
         logging.warning('deck not found')
@@ -176,6 +178,7 @@ class Session:
                 self.current = self.entries.pop(0)[1:3]
             return self.current[self.get_question_index()]
         else:
+            logging.info('no entries left')
             raise StopIteration
 
     def get_question_index(self):
@@ -188,8 +191,9 @@ class Session:
         if self.current == None:
             logging.warning('Nothing to be answered, nothing has been asked')
         correctanswer = self.current[self.get_answer_index()]
-        logging.info('comparing {} with {}'.format(answer, correctanswer))
+        logging.info('comparing "{}" with "{}"'.format(answer, correctanswer))
         correct = answer == correctanswer
+        self.answer = correctanswer
         self.current = None
         return correct
 
