@@ -33,7 +33,7 @@ if __name__ == '__main__':
     list_parser.required = True
 
     load_parser = subparsers.add_parser('load', help='load a file as deck')
-    load_parser.add_argument('-e', '--encoding', 
+    load_parser.add_argument('-e', '--encoding',
                              default=sys.getdefaultencoding(),
                              help='encoding for the input')
     load_parser.add_argument('deckname', help='name for the deck')
@@ -54,9 +54,10 @@ if __name__ == '__main__':
 
     session_parser = subparsers.add_parser('session', help='practise session')
     session_parser.add_argument('deckname', help='name of the deck')
-    session_parser.add_argument('-s', '--system', default='order',
-                                choices=['order', 'random', 'leitner'],
-                                help='set questioning system')
+    session_parser.add_argument('-l', '--leitner', action='store_true',
+                                help='use the leitner system')
+    session_parser.add_argument('-r', '--random', action='store_true',
+                                help='randomize the questions')
     session_parser.add_argument('-i', '--inverse', action='store_true',
                                 help='inverse the question and the answer')
     session_parser.set_defaults(which='session')
@@ -93,7 +94,7 @@ if __name__ == '__main__':
             print('date_added : {}'.format(deck['date_added']))
             print('num_entries: {}'.format(len(deck['entries'])))
             if args['show_entries']:
-                print('entries: (id,a,b,times,times_correct,box)\n{}'.format(
+                print('entries: (a,b,times,times_correct,box)\n{}'.format(
                     '\n'.join(map(str, deck['entries']))))
             print()
     elif args['which'] == 'load':
@@ -105,7 +106,7 @@ if __name__ == '__main__':
         if fin != sys.stdin:
             fin.close()
     elif args['which'] == 'remove':
-        pycards.remove_deck(**args)
+        print('Decks removed: {}'.format(pycards.remove_deck(**args)))
     elif args['which'] == 'export':
         if not args['filepath'] or args['filepath'] == '-':
             fout = sys.stdout
