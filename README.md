@@ -33,4 +33,4 @@ See `LICENCE` file.
 [1]: https://en.wikipedia.org/wiki/Flashcard
 [2]: https://www.python.org
 [3]: https://www.sqlite.org
-[4]: https://en.wikipedia.org/wiki/Leitner\_system
+[4]: https://en.wikipedia.org/wiki/Leitner_system
