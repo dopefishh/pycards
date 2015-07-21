@@ -1,4 +1,5 @@
-# pycards 0.3
+`pycards` 0.3
+===========
 
 ### Introduction
 *pycards* is an engine with different frontends to memorize things using
@@ -96,6 +97,8 @@ database to store all the data. It is starting to get a little usable.
 - All queries parameterized where possible, also changed deck databases to be
   consisting of ids and ascii only to let names contain every character.
 - Updated readme with help.
+- Removed the need for a config file.
+- Better time representation in `cli.py` while listing decks.
 
 *[Version 0.2](https://github.com/dopefishh/pycards/releases/tag/v0.2)*
 - List deck(s) either with or without all the entries.

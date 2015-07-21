@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import time
 import os
 import pycards
 import logging
@@ -11,8 +12,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest='which')
 
-    parser.add_argument('-c', '--config', default='~/.pycards/config',
-                        help='custom config file')
     parser.add_argument('-d', '--database', default='~/.pycards/pycards.db',
                         help='custom database file')
     parser.add_argument('-l', '--loglevel', default='SILENT',
@@ -65,17 +64,8 @@ if __name__ == '__main__':
 
     pargs = parser.parse_args()
     args = {}
-    with open(pargs.config, 'r') as cin:
-        for line in [l.strip() for l in cin]:
-            if line and line[0] != '#':
-                items = line.split('=')
-                if len(items) > 1:
-                    args[items[0].strip()] = '='.join(items[1:]).strip()
-                else:
-                    print('Couldn\'t parse "{}"\nSkipping...\n'.format(line))
     args.update(vars(pargs))
     args['database'] = os.path.abspath(os.path.expanduser(args['database']))
-    args['config'] = os.path.abspath(os.path.expanduser(args['config']))
 
     try:
         os.makedirs(os.path.dirname(args['database']))
@@ -91,7 +81,8 @@ if __name__ == '__main__':
     if args['which'] == 'list':
         for deck in pycards.list_decks(**args):
             print('name       : {}'.format(deck['name']))
-            print('date_added : {}'.format(deck['date_added']))
+            print('date_added : {}'.format(time.strftime(
+                '%x %X', time.localtime(deck['date_added']))))
             print('num_entries: {}'.format(len(deck['entries'])))
             if args['show_entries']:
                 print('entries: (a,b,times,times_correct,box)\n{}'.format(

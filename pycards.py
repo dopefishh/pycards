@@ -70,9 +70,9 @@ def list_decks(database, deckname, **k):
     logging.info('getting deck information')
     logging.debug('with query: {}'.format(q))
     datenames = list(c.execute(q))
-    for id_, date, name in datenames:
+    for id_, name, date in datenames:
         if not deckname or deckname == name:
-            decks.append({'name': name, 'date_added': date,
+            decks.append({'name': name, 'date_added': float(date),
                           'entries': []})
             q = 'SELECT * FROM {}'.format(get_word_db(id_))
             logging.info('getting entries information')
@@ -116,6 +116,7 @@ def load_from_file(lines, database, deckname, **k):
             c.execute(q, (a, b))
     sq.commit()
     sq.close()
+
 
 def remove_deck(database, deckname, **k):
     """Remove a deck from the database
@@ -167,7 +168,7 @@ def export_deck(database, deckname, **k):
     else:
         for entry in deck[0]['entries']:
             if entry:
-                s = '{}\t{}\n'.format(entry[1], entry[2])
+                s = '{}\t{}\n'.format(entry[0], entry[1])
                 logging.debug('yielding: {}'.format(s))
                 yield s
 
