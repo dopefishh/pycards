@@ -12,74 +12,82 @@ database to store all the data. It is starting to get a little usable.
 - `globaloptions`
 	- `-h`, `--help`
 	
-		Show the help message and exit
+		Show the help message and exit.
 	- `-d DATABASE`, `--database DATABASE`
 	
-		Specify a custom database file. Default: `~/.pycards/pycards.db`
+		Specify a custom database file. If not given `~/.pycards/pycards.db` is
+		used.
 	- `-l {INFO,DEBUG,SILENT}`, `--loglevel {INFO,DEBUG,SILENT}`
 	
-	  Specify a custom log level. Default: `SILENT`
+	  Specify a custom log level. If not given SILENT is used.
 	- `-f LOGFILE`, `--logfile LOGFILE`
 	
-	  Specify a log file location. Default: stdout
+	  Specify a log file location. If not given stdout is used.
 	- `--version`
 	
 		Show version number and exit
 - `list`: `cli.py [globaloptions] list [options] [deckname]`
+	Show one or more decks from the database.
 	- `-h`, `--help`
 	
-		Show the `list` specific help message and exit
+		Show the `list` specific help message and exit.
 	- `-e`, `--show-entries`
 	
 		Flag to print all the individual entries
 	
 	- `deckname`
 	
-		Name of the deck to print. If not given, all decks will be printed
+		Name of the deck to print. If not given, all decks will be printed.
 - `load`:  `cli.py [globaloptions] load [options] deckname [filepath]`
+	Load a deck from a file into a database. The input must be tab separated and
+	two columns. The first column is the question and the second column is the
+	answer.
 	- `-h`, `--help`
 	
-		Show the `load` specific help message and exit
+		Show the `load` specific help message and exit.
 	- `-e ENCODING`, `--encoding ENCODING`
 	
-		Encoding to read the file/stream in
+		Encoding to read the file/stream in.
 	
 	- `deckname`
 	
-		Name of the deck to load the entries in
+		Name of the deck to load the entries in.
 	- `filepath`
 	
-		Filepath to load the entries from. If not given stdin is used
+		Location to load the entries from. If not given stdin is used
 - `remove`: `cli.py [globaloptions] remove [options] deckname`
+	Remove a deck from the database.
 	- `-h`, `--help`
 	
-		Show the `remove` specific help message and exit
+		Show the `remove` specific help message and exit.
 	- `deckname`
 	
-		Name of the deck to remove
+		Name of the deck to remove.
 - `export`:  `cli.py [globaloptions] export [options] deckname [filepath]`
+	Export a deck from the database.
 	- `-h`, `--help`
 	
-		Show the `export` specific help message and exit
+		Show the `export` specific help message and exit.
 	- `deckname`
 	
-		Name of the deck to export
+		Name of the deck to export.
 	- `filepath`
 	
 		Location to export to. If not given stdout is used
 - `session`: `cli.py [globaloptions] session [options] deckname`
+	Run a session with a deck.
 	- `-h`, `--help`
 	
-		Show the `session` specific help message and exit
+		Show the `session` specific help message and exit.
 	- `-l`, `--leitner`
 	
-		Use the [leitner system][4]
+		Use the [leitner system][4].
 	- `-r`, `--random`
 	
-		Randomize the questions
+		Randomize the questions.
 	- `-i`, `--inverse`
 	
-		Inverse the question and the answer
+		Inverse the question and the answer.
 	- `deckname`
 	
 		Name of the deck to start the session with

@@ -13,52 +13,61 @@ if __name__ == '__main__':
     subparsers = parser.add_subparsers(dest='which')
 
     parser.add_argument('-d', '--database', default='~/.pycards/pycards.db',
-                        help='custom database file')
+                        help='Specify a custom database file. If not given ~/.'
+                        'pycards/pycards.db is used.')
     parser.add_argument('-l', '--loglevel', default='SILENT',
-                        choices=['INFO', 'DEBUG', 'SILENT'],
-                        help='set loglevel to INFO DEBUG or SILENT')
-    parser.add_argument('-f', '--logfile', default=None,
-                        help='log file location')
+                        choices=['INFO', 'DEBUG', 'SILENT'], help='Specify a c'
+                        'ustom loglevel. If not given SILENT is used.')
+    parser.add_argument('-f', '--logfile', default=None, help='Specify a log f'
+                        'ile location. If not given stdout is used.')
     parser.add_argument('--version', action='version',
                         version='%(prog)s {}'.format(pycards.__version__))
     parser.set_defaults(which='all')
 
-    list_parser = subparsers.add_parser('list', help='show decks or deck')
-    list_parser.add_argument('deckname', nargs='?',
-                             help='name of the deck to show')
+    list_parser = subparsers.add_parser(
+        'list', help='Show one or more decks from the database')
+    list_parser.add_argument('deckname', nargs='?', help='name of the deck to '
+                             'print. If not given, all decks will be printed.')
     list_parser.add_argument('-e', '--show-entries', action='store_true',
-                             help='also print all entries')
+                             help='Flag to print all the individual entries.')
     list_parser.set_defaults(which='list')
     list_parser.required = True
 
-    load_parser = subparsers.add_parser('load', help='load a file as deck')
+    load_parser = subparsers.add_parser(
+        'load', help='Load a deck from a file into a database.')
     load_parser.add_argument('-e', '--encoding',
                              default=sys.getdefaultencoding(),
-                             help='encoding for the input')
-    load_parser.add_argument('deckname', help='name for the deck')
-    load_parser.add_argument('filepath', nargs='?', help='file to load from')
+                             help='Encoding to read the file/stream in.')
+    load_parser.add_argument(
+        'deckname', help='Name of the deck to load the entries in.')
+    load_parser.add_argument('filepath', nargs='?', help='Location to load the'
+                             ' entries from. If not given stdin is used.')
     load_parser.set_defaults(which='load')
     load_parser.required = True
 
-    remove_parser = subparsers.add_parser('remove', help='remove a deck')
-    remove_parser.add_argument('deckname', help='name of the deck')
+    remove_parser = subparsers.add_parser(
+        'remove', help='Remove a deck from the database.')
+    remove_parser.add_argument('deckname', help='Name of the deck to remove.')
     remove_parser.set_defaults(which='remove')
     remove_parser.required = True
 
-    export_parser = subparsers.add_parser('export', help='export a deck')
-    export_parser.add_argument('deckname', help='name of the deck')
-    export_parser.add_argument('filepath', nargs='?', help='file to export to')
+    export_parser = subparsers.add_parser(
+        'export', help='Export a deck from the database.')
+    export_parser.add_argument('deckname', help='Name of the deck to export.')
+    export_parser.add_argument('filepath', nargs='?', help='Location to export'
+                               ' to. If not given stdout is used.')
     export_parser.set_defaults(which='export')
     export_parser.required = True
 
-    session_parser = subparsers.add_parser('session', help='practise session')
+    session_parser = subparsers.add_parser(
+        'session', help='Run a session with a deck')
     session_parser.add_argument('deckname', help='name of the deck')
     session_parser.add_argument('-l', '--leitner', action='store_true',
-                                help='use the leitner system')
+                                help='Use the leitner system.')
     session_parser.add_argument('-r', '--random', action='store_true',
-                                help='randomize the questions')
+                                help='Randomize the questions.')
     session_parser.add_argument('-i', '--inverse', action='store_true',
-                                help='inverse the question and the answer')
+                                help='Inverse the question and the answer.')
     session_parser.set_defaults(which='session')
     session_parser.required = True
 
