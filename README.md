@@ -6,7 +6,7 @@
 [flashcards][1]. *pycards* is written in [Python 3][2] and uses a [sqlite][3]
 database to store all the data. It is starting to get a little usable.
 
-### Usage of `cli.py`: Command line interface
+### Usage of `cli.py`
 `cli.py [globaloptions] {list,load,remove,export,session} [options] [args]`
 
 - `globaloptions`
@@ -19,7 +19,7 @@ database to store all the data. It is starting to get a little usable.
 		used.
 	- `-l {INFO,DEBUG,SILENT}`, `--loglevel {INFO,DEBUG,SILENT}`
 	
-	  Specify a custom log level. If not given SILENT is used.
+	  Specify a custom log level. If not given `SILENT` is used.
 	- `-f LOGFILE`, `--logfile LOGFILE`
 	
 	  Specify a log file location. If not given stdout is used.
@@ -118,7 +118,7 @@ database to store all the data. It is starting to get a little usable.
 *[Version 0.1](https://github.com/dopefishh/pycards/releases/tag/v0.1)*
 - Initial version
 
-### LICENCE
+### Licence
 See `LICENCE` file.
 
 [1]: https://en.wikipedia.org/wiki/Flashcard
