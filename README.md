@@ -27,6 +27,7 @@ database to store all the data. It is starting to get a little usable.
 	
 		Show version number and exit
 - `list`: `cli.py [globaloptions] list [options] [deckname [deckname ...]]`
+
 	Show one or more decks from the database.
 	- `-h`, `--help`
 	
@@ -39,6 +40,7 @@ database to store all the data. It is starting to get a little usable.
 	
 		Name of the deck to print. If not given, all decks will be printed.
 - `load`:  `cli.py [globaloptions] load [options] deckname [filepath]`
+
 	Load a deck from a file into a database. The input must be tab separated and
 	two columns. The first column is the question and the second column is the
 	answer.
@@ -52,6 +54,7 @@ database to store all the data. It is starting to get a little usable.
 	
 		Location to load the entries from. If not given stdin is used
 - `remove`: `cli.py [globaloptions] remove [options] deckname [deckname ...]`
+
 	Remove decks from the database.
 	- `-h`, `--help`
 	
@@ -60,6 +63,7 @@ database to store all the data. It is starting to get a little usable.
 	
 		Name of the deck to remove.
 - `export`:  `cli.py [globaloptions] export [options] deckname [filepath]`
+
 	Export a deck from the database.
 	- `-h`, `--help`
 	
@@ -71,6 +75,7 @@ database to store all the data. It is starting to get a little usable.
 	
 		Location to export to. If not given stdout is used
 - `session`: `cli.py [globaloptions] session [options] deckname`
+
 	Run a session with a deck.
 	- `-h`, `--help`
 	
