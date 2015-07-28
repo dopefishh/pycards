@@ -1,4 +1,4 @@
-`pycards` 0.3
+`pycards` 0.4
 ===========
 
 ### Introduction
@@ -26,7 +26,7 @@ database to store all the data. It is starting to get a little usable.
 	- `--version`
 	
 		Show version number and exit
-- `list`: `cli.py [globaloptions] list [options] [deckname]`
+- `list`: `cli.py [globaloptions] list [options] [deckname [deckname ...]]`
 	Show one or more decks from the database.
 	- `-h`, `--help`
 	
@@ -45,18 +45,14 @@ database to store all the data. It is starting to get a little usable.
 	- `-h`, `--help`
 	
 		Show the `load` specific help message and exit.
-	- `-e ENCODING`, `--encoding ENCODING`
-	
-		Encoding to read the file/stream in.
-	
 	- `deckname`
 	
 		Name of the deck to load the entries in.
 	- `filepath`
 	
 		Location to load the entries from. If not given stdin is used
-- `remove`: `cli.py [globaloptions] remove [options] deckname`
-	Remove a deck from the database.
+- `remove`: `cli.py [globaloptions] remove [options] deckname [deckname ...]`
+	Remove decks from the database.
 	- `-h`, `--help`
 	
 		Show the `remove` specific help message and exit.
@@ -98,6 +94,11 @@ database to store all the data. It is starting to get a little usable.
 - Graphical user interface
 
 ### Changelog
+*[Version 0.4](https://github.com/dopefishh/pycards/releases/tag/v0.4)*
+- Better command line parser, parser separated from main
+- List and remove accept multiple decknames now
+- Better error handling for malformed input files
+
 *[Version 0.3](https://github.com/dopefishh/pycards/releases/tag/v0.3)*
 - [Leitner][4] system implemented.
 - Changed systems so that the system is with flags instead of names. In this

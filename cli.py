@@ -3,126 +3,141 @@
 
 import argparse
 import time
+import locale
+import stat
 import os
 import pycards
 import logging
-import sys
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    subparsers = parser.add_subparsers(dest='which')
 
-    parser.add_argument('-d', '--database', default='~/.pycards/pycards.db',
-                        help='Specify a custom database file. If not given ~/.'
-                        'pycards/pycards.db is used.')
-    parser.add_argument('-l', '--loglevel', default='SILENT',
-                        choices=['INFO', 'DEBUG', 'SILENT'], help='Specify a c'
-                        'ustom loglevel. If not given SILENT is used.')
-    parser.add_argument('-f', '--logfile', default=None, help='Specify a log f'
-                        'ile location. If not given stdout is used.')
-    parser.add_argument('--version', action='version',
-                        version='%(prog)s {}'.format(pycards.__version__))
-    parser.set_defaults(which='all')
+def parse_args():
+    pars = argparse.ArgumentParser()
+    subparsers = pars.add_subparsers(dest='which')
 
+    # Global options
+    pars.add_argument(
+        '-d', '--database', default='~/.pycards/pycards.db',
+        help='Specify a custom database file. '
+        'If not given ~/.pycards/pycards.db is used.')
+    pars.add_argument(
+        '-l', '--loglevel', default='SILENT',
+        choices=['INFO', 'DEBUG', 'SILENT'],
+        help='Specify a custom loglevel. '
+        'If not given SILENT is used.')
+    pars.add_argument(
+        '-f', '--logfile', default=None,
+        help='Specify a log file location. '
+        'If not given stdout is used.')
+    pars.add_argument(
+        '--version', action='version',
+        version='%(prog)s ' + pycards.__version__)
+
+    # List subparser
     list_parser = subparsers.add_parser(
         'list', help='Show one or more decks from the database')
-    list_parser.add_argument('deckname', nargs='?', help='name of the deck to '
-                             'print. If not given, all decks will be printed.')
-    list_parser.add_argument('-e', '--show-entries', action='store_true',
-                             help='Flag to print all the individual entries.')
-    list_parser.set_defaults(which='list')
-    list_parser.required = True
+    list_parser.add_argument(
+        'deckname', nargs='*',
+        help='name of the deck to print. '
+        'If not given, all decks will be printed.')
+    list_parser.add_argument(
+        '-e', '--show-entries', action='store_true',
+        help='Flag to print all the individual entries.')
 
+    # Load subparser
     load_parser = subparsers.add_parser(
         'load', help='Load a deck from a file into a database.')
-    load_parser.add_argument('-e', '--encoding',
-                             default=sys.getdefaultencoding(),
-                             help='Encoding to read the file/stream in.')
     load_parser.add_argument(
-        'deckname', help='Name of the deck to load the entries in.')
-    load_parser.add_argument('filepath', nargs='?', help='Location to load the'
-                             ' entries from. If not given stdin is used.')
-    load_parser.set_defaults(which='load')
-    load_parser.required = True
+        'deckname',
+        help='Name of the deck to load the entries in.')
+    load_parser.add_argument(
+        'filepath', nargs='?', default='-',
+        type=argparse.FileType('r'),
+        help='Location to load the entries from. '
+        'If not given stdin is used.')
 
+    # Remove subparser
     remove_parser = subparsers.add_parser(
-        'remove', help='Remove a deck from the database.')
-    remove_parser.add_argument('deckname', help='Name of the deck to remove.')
-    remove_parser.set_defaults(which='remove')
-    remove_parser.required = True
+        'remove', help='Remove decks from the database.')
+    remove_parser.add_argument(
+        'deckname', nargs='+',
+        help='Name of the deck to remove.')
 
+    # Export subparser
     export_parser = subparsers.add_parser(
         'export', help='Export a deck from the database.')
-    export_parser.add_argument('deckname', help='Name of the deck to export.')
-    export_parser.add_argument('filepath', nargs='?', help='Location to export'
-                               ' to. If not given stdout is used.')
-    export_parser.set_defaults(which='export')
-    export_parser.required = True
+    export_parser.add_argument(
+        'deckname',
+        help='Name of the deck to export.')
+    export_parser.add_argument(
+        'filepath', nargs='?', default='-', type=argparse.FileType('w'),
+        help='Location to export to. '
+        'If not given stdout is used.')
 
+    # Session subparser
     session_parser = subparsers.add_parser(
         'session', help='Run a session with a deck')
-    session_parser.add_argument('deckname', help='name of the deck')
-    session_parser.add_argument('-l', '--leitner', action='store_true',
-                                help='Use the leitner system.')
-    session_parser.add_argument('-r', '--random', action='store_true',
-                                help='Randomize the questions.')
-    session_parser.add_argument('-i', '--inverse', action='store_true',
-                                help='Inverse the question and the answer.')
-    session_parser.set_defaults(which='session')
-    session_parser.required = True
+    session_parser.add_argument(
+        'deckname', help='name of the deck')
+    session_parser.add_argument(
+        '-l', '--leitner', action='store_true',
+        help='Use the leitner system.')
+    session_parser.add_argument(
+        '-r', '--random', action='store_true',
+        help='Randomize the questions.')
+    session_parser.add_argument(
+        '-i', '--inverse', action='store_true',
+        help='Inverse the question and the answer.')
 
-    pargs = parser.parse_args()
-    args = {}
-    args.update(vars(pargs))
-    args['database'] = os.path.abspath(os.path.expanduser(args['database']))
+    pargs = pars.parse_args()
+    if pargs.which is None:
+        pars.print_usage()
+        exit(1)
+    return pargs
 
-    try:
-        os.makedirs(os.path.dirname(args['database']))
-    except OSError as e:
-        if e.errno != 17:
-            raise e
 
-    args['loglevel'] = logging.INFO if args['loglevel'] == 'INFO' else\
-        logging.DEBUG if args['loglevel'] == 'DEBUG' else logging.WARNING
+def pfclose(fp):
+    """Close a file object, but only if it's a real file
 
-    pycards.setup_logger(**args)
+    Arguments:
+    fp - file object
+    """
+    logging.debug('closing: {}'.format(fp))
+    if stat.S_ISREG(os.fstat(fp.fileno()).st_mode):
+        logging.debug('{} is regular file, closing...'.format(fp))
+        fp.close()
 
-    if args['which'] == 'list':
-        for deck in pycards.list_decks(**args):
+if __name__ == '__main__':
+    args = parse_args()
+    db = os.path.abspath(os.path.expanduser(args.database))
+
+    pycards.setup_logger(args.logfile, args.loglevel)
+    if args.which == 'list':
+        for deck in pycards.list_decks(db, args.deckname):
             print('name       : {}'.format(deck['name']))
             print('date_added : {}'.format(time.strftime(
                 '%x %X', time.localtime(deck['date_added']))))
             print('num_entries: {}'.format(len(deck['entries'])))
-            if args['show_entries']:
+            if args.show_entries:
                 print('entries: (a,b,times,times_correct,box)\n{}'.format(
                     '\n'.join(map(str, deck['entries']))))
             print()
-    elif args['which'] == 'load':
-        if not args['filepath'] or args['filepath'] == '-':
-            fin = sys.stdin
-        else:
-            fin = open(args['filepath'], 'r', encoding=args['encoding'])
-        pycards.load_from_file(fin, **args)
-        if fin != sys.stdin:
-            fin.close()
-    elif args['which'] == 'remove':
-        print('Decks removed: {}'.format(pycards.remove_deck(**args)))
-    elif args['which'] == 'export':
-        if not args['filepath'] or args['filepath'] == '-':
-            fout = sys.stdout
-        else:
-            fout = open(args['filepath'], 'w')
-        for line in pycards.export_deck(**args):
-            fout.write(line)
-        if fout != sys.stdout:
-            fout.close()
-    elif args['which'] == 'session':
-        ses = pycards.session(**args)
+    elif args.which == 'load':
+        pycards.load_from_file(args.filepath, db, args.deckname)
+        pfclose(args.filepath)
+    elif args.which == 'remove':
+        for deck in args.deckname:
+            print('decks removed for {}: {}'.format(
+                deck, pycards.remove_deck(db, deck)))
+    elif args.which == 'export':
+        for line in pycards.export_deck(db, args.deckname):
+            args.filepath.write(line)
+        pfclose(args.filepath)
+    elif args.which == 'session':
+        ses = pycards.session(
+            db, args.deckname, args.inverse, args.random, args.leitner)
         for s in ses:
-            answer = input(s + ': ')
+            answer = input(s + ':\n')
             if ses.answer_current(answer):
                 print('correct!')
             else:
                 print('incorrect, it had to be: "{}"'.format(ses.answer))
-    else:
-        parser.print_help()

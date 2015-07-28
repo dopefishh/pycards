@@ -3,13 +3,14 @@
 import sqlite3
 import time
 import logging
+import os
 
-__version__ = '0.3'
+__version__ = '0.4'
 
 LEITNER_BOXES = 5
 
 
-def setup_logger(logfile, loglevel, **k):
+def setup_logger(logfile, loglevel):
     """Setup the logger
 
     arguments:
@@ -17,6 +18,8 @@ def setup_logger(logfile, loglevel, **k):
     loglevel - level to log in
     """
     f = '%(levelno)s\t%(lineno)d\t%(asctime)s\t%(message)s'
+    loglevel = {'INFO': logging.INFO, 'DEBUG': logging.DEBUG}.get(
+        loglevel, logging.WARNING)
     if logfile is None:
         logging.basicConfig(format=f, level=loglevel)
     else:
@@ -32,6 +35,11 @@ def get_db(database):
 
     returns: (sqlite-object, sqlite-cursor)
     """
+    try:
+        os.makedirs(os.path.dirname(database))
+    except OSError as e:
+        if e.errno != 17:
+            raise e
     sq = sqlite3.connect(database)
     logging.debug('Connected with database at {}'.format(database))
     c = sq.cursor()
@@ -52,18 +60,18 @@ def get_word_db(name):
     return '"words_{}"'.format(name)
 
 
-def list_decks(database, deckname, **k):
+def list_decks(database, deckname):
     """List the decks optionally with their entries
 
     arguments:
     database - filepath for the sqlite database file
-    deckname - name of the deck to list, if None all decks are shown
+    deckname - list of decknames to list. If empty all decks are listed.
 
     returns: [deck]
         where deck = {name, date_added, entries}
         where entries = [(a, b, times, times_correct, box)]
     """
-    logging.info('list decks... with name: {}'.format(deckname))
+    logging.info('list decks... with names: {}'.format(deckname))
     sq, c = get_db(database)
     decks = []
     q = 'SELECT rowid, name, date FROM decks'
@@ -71,7 +79,7 @@ def list_decks(database, deckname, **k):
     logging.debug('with query: {}'.format(q))
     datenames = list(c.execute(q))
     for id_, name, date in datenames:
-        if not deckname or deckname == name:
+        if not deckname or name in deckname:
             decks.append({'name': name, 'date_added': float(date),
                           'entries': []})
             q = 'SELECT * FROM {}'.format(get_word_db(id_))
@@ -83,7 +91,7 @@ def list_decks(database, deckname, **k):
     return decks
 
 
-def load_from_file(lines, database, deckname, **k):
+def load_from_file(lines, database, deckname):
     """Import a deck from a file
 
     arguments:
@@ -107,18 +115,24 @@ def load_from_file(lines, database, deckname, **k):
 
     logging.info('inserting from {}'.format(lines))
     for line in lines:
-        line = line.strip()
-        if line and line[0] != '#':
-            a, b = line.split('\t')
+        if line[0] != '#':
+            splits = line.strip().split('\t')
+            if len(splits) < 2:
+                logging.warning('line doesn\'t consist of two tab separated '
+                                'fields... Skipping')
+                continue
+            if len(splits) > 2:
+                logging.warning(
+                    'line has more columns... discarding extra columns...')
             q = ('INSERT OR IGNORE INTO {} (a, b, times, times_correct, box) '
                  'values(?,?,0,0,1)').format(dbname)
             logging.debug('inserting entry\nwith query: {}'.format(q))
-            c.execute(q, (a, b))
+            c.execute(q, splits[:2])
     sq.commit()
     sq.close()
 
 
-def remove_deck(database, deckname, **k):
+def remove_deck(database, deckname):
     """Remove a deck from the database
 
     arguments:
@@ -149,7 +163,7 @@ def remove_deck(database, deckname, **k):
     return num
 
 
-def export_deck(database, deckname, **k):
+def export_deck(database, deckname):
     """Export a deck from the database
 
     arguments:
@@ -161,12 +175,11 @@ def export_deck(database, deckname, **k):
     logging.info('exporting deck...')
     sq, c = get_db(database)
     logging.info('getting deck information')
-    decks = list_decks(database, deckname, **k)
-    deck = [d for d in decks if d['name'] == deckname]
-    if not deck:
+    decks = list_decks(database, [deckname])
+    if not decks:
         logging.warning('deck not found')
     else:
-        for entry in deck[0]['entries']:
+        for entry in decks[0]['entries']:
             if entry:
                 s = '{}\t{}\n'.format(entry[0], entry[1])
                 logging.debug('yielding: {}'.format(s))
@@ -227,7 +240,6 @@ class Session:
             logging.warning('Nothing to be answered, nothing has been asked')
         self.answer = self.cur[2]
         logging.info('comparing "{}" with "{}"'.format(answer, self.answer))
-        print(self.cur)
 
         correct = answer == self.answer
         if correct:
@@ -246,7 +258,7 @@ class Session:
         return correct
 
 
-def session(database, deckname, inverse, random, leitner, **k):
+def session(database, deckname, inverse, random, leitner):
     """Start a session
 
     arguments:
