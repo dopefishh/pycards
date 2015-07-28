@@ -93,6 +93,15 @@ database to store all the data. It is starting to get a little usable.
 - Curses interface
 - Graphical user interface
 
+### Troubleshooting
+```python
+Traceback (most recent call last):
+  File "cli.py", line 138, in <module>
+    for s in ses:
+TypeError: instance has no next() method
+```
+You are running the program with a python that is not 3.
+
 ### Changelog
 *[Version 0.4](https://github.com/dopefishh/pycards/releases/tag/v0.4)*
 - Better command line parser, parser separated from main
