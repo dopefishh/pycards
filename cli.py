@@ -3,7 +3,6 @@
 
 import argparse
 import time
-import locale
 import stat
 import os
 import pycards
