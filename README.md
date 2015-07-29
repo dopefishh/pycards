@@ -8,7 +8,7 @@
 	- [Todo](#todo)
 	- [Troubleshooting](#troubleshooting)
 - [Documentation](#documentation)
-	- [Leitner system](#leitner)
+	- [Leitner system](#leitner-system)
 	- [Usage `cli.py`](#usage-cli)
 		- [File format](#file-format)
 		- [Man](#man-cli)
