@@ -9,9 +9,7 @@
 	- [Troubleshooting](#troubleshooting)
 - [Documentation](#documentation)
 	- [Leitner system](#leitner-system)
-	- [Usage `cli.py`](#usage-cli)
-		- [File format](#file-format)
-		- [Man](#man-cli)
+	- [Usage `cli.py`](#usage-clipy)
 	- [Usage `web.py`](#usage-web)
 - [Licence](#licence)
 - [Chancelog](#changelog)
@@ -39,10 +37,6 @@ issue that you run it with [Python 3][2].
 TODO
 
 ### Usage of `cli.py`<a href="#table-of-contents">↑</a>
-#### File format<a href="#table-of-contents">↑</a>
-TODO
-
-#### Man<a href="#table-of-contents">↑</a>
 `cli.py [globaloptions] {list,load,remove,export,session} [options] [args]`
 
 - `globaloptions`
