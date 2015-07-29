@@ -16,33 +16,33 @@
 - [Licence](#licence)
 - [Chancelog](#changelog)
 
-## <a name="pycards"></a>Pycards<a href="#pycards">↑</a>
+## Pycards<a href="#pycards">↑</a>
 ### Introduction<a href="#table-of-contents">↑</a>
 *pycards* is an engine with different frontends to memorize things using
 [flashcards][1]. *pycards* is written in [Python 3][2] and uses a [sqlite][3]
 database to store all the data. It is starting to get a little usable.
 
-### <a name="requirements"></a>Requirements<a href="#table-of-contents">↑</a>
+### Requirements<a href="#table-of-contents">↑</a>
 - [Python 3][2]
 
-### <a name="todo"></a>Todo<a href="#table-of-contents">↑</a>
+### Todo<a href="#table-of-contents">↑</a>
 - Web interface
 - Curses interface
 - Graphical user interface
 
-### <a name="troubleshooting"></a>Troubleshooting<a href="#table-of-contents">↑</a>
+### Troubleshooting<a href="#table-of-contents">↑</a>
 If the program misbehaves at a certain point please make sure before posting an
 issue that you run it with [Python 3][2].
 
-## <a name="documentation"></a>Documentation<a href="#table-of-contents">↑</a>
-### <a name="leitner"></a>Leitner system<a href="#table-of-contents">↑</a>
+## Documentation<a href="#table-of-contents">↑</a>
+### Leitner system<a href="#table-of-contents">↑</a>
 TODO
 
-### <a name="usage-cli"></a>Usage of `cli.py`<a href="#table-of-contents">↑</a>
-#### <a name="file-format"></a>File format<a href="#table-of-contents">↑</a>
+### Usage of `cli.py`<a href="#table-of-contents">↑</a>
+#### File format<a href="#table-of-contents">↑</a>
 TODO
 
-#### <a name="man-cli"></a>Man<a href="#table-of-contents">↑</a>
+#### Man<a href="#table-of-contents">↑</a>
 `cli.py [globaloptions] {list,load,remove,export,session} [options] [args]`
 
 - `globaloptions`
@@ -129,13 +129,13 @@ TODO
 	
 		Name of the deck to start the session with
 
-### <a name="usage-web"></a>Usage of `web.py`<a href="#table-of-contents">↑</a>
+### Usage of `web.py`<a href="#table-of-contents">↑</a>
 NOT IMPLEMENTED YET
 
-## <a name="licence"></a>Licence<a href="#table-of-contents">↑</a>
+## Licence<a href="#table-of-contents">↑</a>
 See `LICENCE` file.
 
-## <a name="changelog"></a>Changelog<a href="#table-of-contents">↑</a>
+## Changelog<a href="#table-of-contents">↑</a>
 *[Version 0.4](https://github.com/dopefishh/pycards/releases/tag/v0.4)*
 - Better command line parser, parser separated from main.
 - List, export and remove accept multiple decknames now.
