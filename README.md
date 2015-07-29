@@ -17,7 +17,7 @@
 - [Chancelog](#changelog)
 
 ## <a name="pycards"></a>Pycards<a href="#pycards">↑</a>
-### <a name="introduction"></a>Introduction<a href="#table-of-contents">↑</a>
+### Introduction<a href="#table-of-contents">↑</a>
 *pycards* is an engine with different frontends to memorize things using
 [flashcards][1]. *pycards* is written in [Python 3][2] and uses a [sqlite][3]
 database to store all the data. It is starting to get a little usable.
