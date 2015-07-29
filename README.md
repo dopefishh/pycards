@@ -134,6 +134,7 @@ See `LICENCE` file.
 - Better command line parser, parser separated from main.
 - List, export and remove accept multiple decknames now.
 - Better error handling for malformed input files.
+- Fancy menu in `README.md`
 
 *[Version 0.3](https://github.com/dopefishh/pycards/releases/tag/v0.3)*
 - [Leitner][4] system implemented.
