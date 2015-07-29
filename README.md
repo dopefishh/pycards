@@ -1,6 +1,6 @@
 `pycards` 0.4
 ===========
-## <a name="table-of-contents"></a>Table of Contents
+## Table of Contents
 - [Table of contents](#table-of-contents)
 - [Pycards](#pycards)
 	- [Introduction](#introduction)
@@ -14,7 +14,7 @@
 - [Licence](#licence)
 - [Chancelog](#changelog)
 
-## Pycards<a href="#pycards">↑</a>
+## Pycards<a href="#table-of-contents">↑</a>
 ### Introduction<a href="#table-of-contents">↑</a>
 *pycards* is an engine with different frontends to memorize things using
 [flashcards][1]. *pycards* is written in [Python 3][2] and uses a [sqlite][3]
