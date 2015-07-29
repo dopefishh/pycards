@@ -9,8 +9,8 @@
 	- [Troubleshooting](#troubleshooting)
 - [Documentation](#documentation)
 	- [Leitner system](#leitner-system)
-	- [Usage `cli.py`](#usage-clipy)
-	- [Usage `web.py`](#usage-web)
+	- [Usage `cli.py`](#usage-of-clipy)
+	- [Usage `web.py`](#usage-of-webpy)
 - [Licence](#licence)
 - [Chancelog](#changelog)
 
