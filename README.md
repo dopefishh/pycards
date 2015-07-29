@@ -1,11 +1,27 @@
 `pycards` 0.4
 ===========
-
+##Pycards
 ### Introduction
 *pycards* is an engine with different frontends to memorize things using
 [flashcards][1]. *pycards* is written in [Python 3][2] and uses a [sqlite][3]
 database to store all the data. It is starting to get a little usable.
 
+### Requirements
+- [Python 3][2]
+
+### TODO, in order of importance
+- Web interface
+- Curses interface
+- Graphical user interface
+
+### Troubleshooting
+If the program misbehaves at a certain point please make sure before posting an
+issue that you run it with [Python 3][2].
+
+### Licence
+See `LICENCE` file.
+
+## Usage
 ### Usage of `cli.py`
 `cli.py [globaloptions] {list,load,remove,export,session} [options] [args]`
 
@@ -62,18 +78,18 @@ database to store all the data. It is starting to get a little usable.
 	- `deckname`
 	
 		Name of the deck to remove.
-- `export`:  `cli.py [globaloptions] export [options] deckname [filepath]`
+- `export`:  `cli.py [globaloptions] export [options] deckname [deckname ...]`
 
-	Export a deck from the database.
+	Export decks from the database.
 	- `-h`, `--help`
 	
 		Show the `export` specific help message and exit.
+	- `-f`, `--filepath`
+	
+		Location to export to. If not given stdout is used
 	- `deckname`
 	
 		Name of the deck to export.
-	- `filepath`
-	
-		Location to export to. If not given stdout is used
 - `session`: `cli.py [globaloptions] session [options] deckname`
 
 	Run a session with a deck.
@@ -93,25 +109,11 @@ database to store all the data. It is starting to get a little usable.
 	
 		Name of the deck to start the session with
 
-### TODO, in order of importance
-- Web interface
-- Curses interface
-- Graphical user interface
-
-### Troubleshooting
-```python
-Traceback (most recent call last):
-  File "cli.py", line 138, in <module>
-    for s in ses:
-TypeError: instance has no next() method
-```
-You are running the program with a python that is not 3.
-
 ### Changelog
 *[Version 0.4](https://github.com/dopefishh/pycards/releases/tag/v0.4)*
-- Better command line parser, parser separated from main
-- List and remove accept multiple decknames now
-- Better error handling for malformed input files
+- Better command line parser, parser separated from main.
+- List, export and remove accept multiple decknames now.
+- Better error handling for malformed input files.
 
 *[Version 0.3](https://github.com/dopefishh/pycards/releases/tag/v0.3)*
 - [Leitner][4] system implemented.
@@ -132,9 +134,6 @@ You are running the program with a python that is not 3.
 
 *[Version 0.1](https://github.com/dopefishh/pycards/releases/tag/v0.1)*
 - Initial version
-
-### Licence
-See `LICENCE` file.
 
 [1]: https://en.wikipedia.org/wiki/Flashcard
 [2]: https://www.python.org

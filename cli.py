@@ -1,6 +1,5 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 import argparse
 import time
 import stat
@@ -36,7 +35,7 @@ def parse_args():
         'list', help='Show one or more decks from the database')
     list_parser.add_argument(
         'deckname', nargs='*',
-        help='name of the deck to print. '
+        help='Name of the deck to print. '
         'If not given, all decks will be printed.')
     list_parser.add_argument(
         '-e', '--show-entries', action='store_true',
@@ -65,12 +64,13 @@ def parse_args():
     export_parser = subparsers.add_parser(
         'export', help='Export a deck from the database.')
     export_parser.add_argument(
-        'deckname',
-        help='Name of the deck to export.')
-    export_parser.add_argument(
-        'filepath', nargs='?', default='-', type=argparse.FileType('w'),
+        '-f', '--filepath', nargs='?', default='-',
+        type=argparse.FileType('w'),
         help='Location to export to. '
         'If not given stdout is used.')
+    export_parser.add_argument(
+        'deckname', nargs='+',
+        help='Name of the deck to export.')
 
     # Session subparser
     session_parser = subparsers.add_parser(
@@ -111,15 +111,14 @@ if __name__ == '__main__':
 
     pycards.setup_logger(args.logfile, args.loglevel)
     if args.which == 'list':
+        print('\t'.join(['name', 'entries']))
         for deck in pycards.list_decks(db, args.deckname):
-            print('name       : {}'.format(deck['name']))
-            print('date_added : {}'.format(time.strftime(
-                '%x %X', time.localtime(deck['date_added']))))
-            print('num_entries: {}'.format(len(deck['entries'])))
+            print('\t'.join([
+                deck['name'],
+                time.strftime('%x %X', time.localtime(deck['date_added']))]))
             if args.show_entries:
                 print('entries: (a,b,times,times_correct,box)\n{}'.format(
                     '\n'.join(map(str, deck['entries']))))
-            print()
     elif args.which == 'load':
         pycards.load_from_file(args.filepath, db, args.deckname)
         pfclose(args.filepath)
@@ -128,8 +127,9 @@ if __name__ == '__main__':
             print('decks removed for {}: {}'.format(
                 deck, pycards.remove_deck(db, deck)))
     elif args.which == 'export':
-        for line in pycards.export_deck(db, args.deckname):
-            args.filepath.write(line)
+        for deckname in args.deckname:
+            for line in pycards.export_deck(db, deckname):
+                args.filepath.write(line)
         pfclose(args.filepath)
     elif args.which == 'session':
         ses = pycards.session(
