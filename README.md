@@ -130,6 +130,9 @@ NOT IMPLEMENTED YET
 See `LICENCE` file.
 
 ## Changelog<a href="#table-of-contents">↑</a>
+*[Version 0.5](https://github.com/dopefishh/pycards/releases/tag/v0.5)*
+- Added statistics table.
+- CRTL+C will interrupt but will write statistics first.
 *[Version 0.4](https://github.com/dopefishh/pycards/releases/tag/v0.4)*
 - Better command line parser, parser separated from main.
 - List, export and remove accept multiple decknames now.
