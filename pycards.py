@@ -43,8 +43,7 @@ def get_db(database):
     sq = sqlite3.connect(database)
     logging.debug('Connected with database at {}'.format(database))
     c = sq.cursor()
-    q = 'CREATE TABLE IF NOT EXISTS decks '\
-        '(date TEXT, name TEXT UNIQUE, times INTEGER)'
+    q = 'CREATE TABLE IF NOT EXISTS decks (date TEXT, name TEXT UNIQUE)'
     logging.info('Creating decks table')
     logging.debug('With query: {}'.format(q))
     c.execute(q)
@@ -58,6 +57,10 @@ def close_db(database):
 
 def get_word_db(name):
     return '"words_{}"'.format(name)
+
+
+def get_stat_db(name):
+    return '"stat_{}"'.format(name)
 
 
 def list_decks(database, deckname):
@@ -101,15 +104,23 @@ def load_from_file(lines, database, deckname):
     """
     logging.info('load from file...')
     sq, c = get_db(database)
-    q = 'INSERT OR IGNORE INTO decks (date, name, times) values(?,?,0)'
+    q = 'INSERT OR IGNORE INTO decks (date, name) values(?,?)'
     logging.info('inserting info in deck table')
     logging.debug('with query: {}'.format(q))
     c.execute(q, (time.time(), deckname))
 
-    dbname = get_word_db(c.lastrowid)
+    lastrowid = c.lastrowid
+    dbname = get_word_db(lastrowid)
     q = 'CREATE TABLE IF NOT EXISTS {} (a TEXT, b TEXT,'\
         'times INTEGER, times_correct INTEGER, box INTEGER)'.format(dbname)
     logging.info('creating deck table')
+    logging.debug('with query: {}'.format(q))
+    c.execute(q)
+
+    dbname2 = get_stat_db(lastrowid)
+    q = ('CREATE TABLE IF NOT EXISTS {} (date INTEGER, correct INTEGER, '
+         'grade TEXT, finished INTEGER)').format(dbname2)
+    logging.info('creating statistics table')
     logging.debug('with query: {}'.format(q))
     c.execute(q)
 
@@ -153,6 +164,10 @@ def remove_deck(database, deckname):
         logging.info('removing deck table: {}'.format(id_))
         logging.debug('with query: {}'.format(q))
         c.execute(q)
+        q = 'DROP TABLE {}'.format(get_stat_db(id_))
+        logging.info('removing statistics table: {}'.format(id_))
+        logging.debug('with query: {}'.format(q))
+        c.execute(q)
         q = 'DELETE FROM decks WHERE rowid={}'.format(id_)
         logging.info('removing deck entry: {}'.format(id_))
         logging.debug('with query: {}'.format(q))
@@ -192,7 +207,7 @@ class Session:
         self.entries = []
         self.cur = None
 
-        q = 'SELECT rowid, times FROM decks WHERE name = ?'
+        q = 'SELECT rowid FROM decks WHERE name = ?'
         logging.info('finding deck with name: {}'.format(deckname))
         logging.debug('with query: {}'.format(q))
         deck = list(self.c.execute(q, (deckname,)))
@@ -202,9 +217,10 @@ class Session:
             logging.warning('No deck with that name')
             return
         else:
-            rowid, times = deck[0]
+            rowid = deck[0][0]
 
         self.deckdb = get_word_db(rowid)
+        self.statdb = get_stat_db(rowid)
         q = 'SELECT rowid, {}, times, times_correct, box FROM {}'.format(
             'b, a' if inverse else 'a, b', self.deckdb)
         if leitner:
@@ -218,10 +234,8 @@ class Session:
         logging.debug('with query: {}'.format(q))
         self.entries += list(self.c.execute(q))
         logging.debug('entries testing: {}'.format(self.entries))
-        logging.info('incrementing times column')
-        q = 'UPDATE decks SET times=? WHERE rowid=?'
-        logging.debug('with query: {}'.format(q))
-        self.c.execute(q, (times+1, rowid))
+        self.all_answers = len(self.entries)
+        self.correct_answers = 0
 
     def __iter__(self):
         return self
@@ -231,8 +245,7 @@ class Session:
             self.cur = self.entries.pop(0)
             return self.cur[1]
         else:
-            logging.info('no entries left, closing database')
-            close_db(self.sq)
+            logging.info('no entries left, writing stats')
             raise StopIteration
 
     def answer_current(self, answer):
@@ -245,6 +258,7 @@ class Session:
         if correct:
             p = (self.cur[3]+1, self.cur[4]+1,
                  min(self.cur[5]+1, LEITNER_BOXES), self.cur[0])
+            self.correct_answers += 1
         else:
             p = (self.cur[3]+1, self.cur[4],
                  max(self.cur[5]-1, 0), self.cur[0])
@@ -256,6 +270,19 @@ class Session:
         self.c.execute(q, p)
         self.cur = None
         return correct
+
+    def write_stats(self, total=True):
+        logging.debug('writing statistics')
+        mark = float((self.correct_answers/float(self.all_answers))*100.0)
+        logging.debug('closing db')
+        q = ('INSERT OR IGNORE INTO {} (date, correct, grade, finished) '
+             'values(?,?,?,?)').format(self.statdb)
+        logging.info('added statistics row in deck table')
+        logging.debug('with query: {}'.format(q))
+        self.c.execute(q, (time.time(), self.correct_answers, str(mark),
+                           1 if total else 0))
+        close_db(self.sq)
+        return mark
 
 
 def session(database, deckname, inverse, random, leitner):

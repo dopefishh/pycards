@@ -111,14 +111,21 @@ if __name__ == '__main__':
 
     pycards.setup_logger(args.logfile, args.loglevel)
     if args.which == 'list':
-        print('\t'.join(['name', 'entries']))
+        print('\t'.join(['name', 'date added', 'entries']))
         for deck in pycards.list_decks(db, args.deckname):
             print('\t'.join([
                 deck['name'],
-                time.strftime('%x %X', time.localtime(deck['date_added']))]))
+                time.strftime('%x %X', time.localtime(deck['date_added'])),
+                str(len(deck['entries']))]))
             if args.show_entries:
-                print('entries: (a,b,times,times_correct,box)\n{}'.format(
-                    '\n'.join(map(str, deck['entries']))))
+                maxa = max(10, max((len(a[0]) for a in deck['entries'])))
+                maxb = max(10, max((len(a[1]) for a in deck['entries'])))
+                formats = '{{:{}}} {{:{}}} {{:5}} {{:7}}'.format(
+                    maxa, maxb)
+                print(formats.format('Question', 'Answer', 'Times', 'Correct'))
+                for a, b, times, correct, _ in deck['entries']:
+                    print(formats.format(a, b, times, correct))
+
     elif args.which == 'load':
         pycards.load_from_file(args.filepath, db, args.deckname)
         pfclose(args.filepath)
@@ -134,9 +141,14 @@ if __name__ == '__main__':
     elif args.which == 'session':
         ses = pycards.session(
             db, args.deckname, args.inverse, args.random, args.leitner)
-        for s in ses:
-            answer = input(s + ':\n')
-            if ses.answer_current(answer):
-                print('correct!')
-            else:
-                print('incorrect, it had to be: "{}"'.format(ses.answer))
+        try:
+            for s in ses:
+                answer = input(s + ':\n')
+                if ses.answer_current(answer):
+                    print('correct!')
+                else:
+                    print('incorrect, it had to be: "{}"'.format(ses.answer))
+            stats = ses.write_stats()
+        except KeyboardInterrupt:
+            stats = ses.write_stats(False)
+        print('\nFinished\n\nGrade: {}'.format(stats))
