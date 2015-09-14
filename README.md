@@ -1,4 +1,4 @@
-pycards 0.5
+Pycards 0.5
 ============
 
 ## Table of Contents
@@ -14,26 +14,26 @@ pycards 0.5
 - [Licence](#licence)
 - [Chancelog](#changelog)
 
-## Pycards [↑][top]
-### Introduction [↑][top]
+## Pycards[↑][top]
+### Introduction[↑][top]
 *pycards* is an engine with different frontends to memorize things using
 [flashcards][1]. *pycards* is written in [Python 3][2] and uses a [sqlite][3]
 database to store all the data. It is starting to get a little usable.
 
-### Requirements [↑][top]
+### Requirements[↑][top]
 - [Python 3][2]
 
-### Todo [↑][top]
+### Todo[↑][top]
 - Web interface
 - Curses interface
 - Graphical user interface
 
-### Troubleshooting [↑][top]
+### Troubleshooting[↑][top]
 If the program misbehaves at a certain point please make sure before posting an
 issue that you run it with [Python 3][2].
 
-## Documentation [↑][top]
-### Leitner system [↑][top]
+## Documentation[↑][top]
+### Leitner system[↑][top]
 The [Leitner-system][4] is a system of repeating flashcards and works with
 boxes. Our implementation has 5 boxes. Cards go up a box if you answer them
 correct and go down in box when you answer them incorrect. A card can not go
@@ -43,7 +43,7 @@ Cards in box 1 are asked every session, cards in box 2 are asked every other
 session, cards in box 3 are asked once every 3 sessions, cards in box 4 are
 asked once in every 4 sessions and cards in box 5 are never asked again.
 
-### Usage of `cli.py` [↑][top]
+### Usage of `cli.py`[↑][top]
 `cli.py [globaloptions] {list,load,remove,export,session} [options] [args]`
 
 - `globaloptions`
@@ -130,10 +130,10 @@ asked once in every 4 sessions and cards in box 5 are never asked again.
 	
 		Name of the deck to start the session with
 
-## Licence [↑][top]
+## Licence[↑][top]
 See `LICENCE` file.
 
-## Changelog [↑][top]
+## Changelog[↑][top]
 *[Version 0.5](https://github.com/dopefishh/pycards/releases/tag/v0.5)*
 - Added statistics table.
 - CRTL+C will interrupt but will write statistics first.
