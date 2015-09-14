@@ -1,5 +1,6 @@
-`pycards` 0.5
-===========
+pycards 0.5
+============
+
 ## Table of Contents
 - [Table of contents](#table-of-contents)
 - [Pycards](#pycards)
@@ -10,7 +11,6 @@
 - [Documentation](#documentation)
 	- [Leitner system](#leitner-system)
 	- [Usage `cli.py`](#usage-of-clipy)
-	- [Usage `web.py`](#usage-of-webpy)
 - [Licence](#licence)
 - [Chancelog](#changelog)
 
@@ -34,7 +34,14 @@ issue that you run it with [Python 3][2].
 
 ## Documentation [↑][top]
 ### Leitner system [↑][top]
-TODO
+The [Leitner-system][4] is a system of repeating flashcards and works with
+boxes. Our implementation has 5 boxes. Cards go up a box if you answer them
+correct and go down in box when you answer them incorrect. A card can not go
+lower then box 1 nor can it go higher then box 5.
+
+Cards in box 1 are asked every session, cards in box 2 are asked every other
+session, cards in box 3 are asked once every 3 sessions, cards in box 4 are
+asked once in every 4 sessions and cards in box 5 are never asked again.
 
 ### Usage of `cli.py` [↑][top]
 `cli.py [globaloptions] {list,load,remove,export,session} [options] [args]`
@@ -112,7 +119,7 @@ TODO
 		Show the `session` specific help message and exit.
 	- `-l`, `--leitner`
 	
-		Use the [leitner system][4].
+		Use the [leitner-system][4].
 	- `-r`, `--random`
 	
 		Randomize the questions.
@@ -122,9 +129,6 @@ TODO
 	- `deckname`
 	
 		Name of the deck to start the session with
-
-### Usage of `web.py` [↑][top]
-NOT IMPLEMENTED YET
 
 ## Licence [↑][top]
 See `LICENCE` file.
