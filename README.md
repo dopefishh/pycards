@@ -14,29 +14,29 @@
 - [Licence](#licence)
 - [Chancelog](#changelog)
 
-## Pycards [↑][top][top][↑]
-### Introduction<a href="#table-of-contents">↑</a>
+## Pycards [↑][top]
+### Introduction [↑][top]
 *pycards* is an engine with different frontends to memorize things using
 [flashcards][1]. *pycards* is written in [Python 3][2] and uses a [sqlite][3]
 database to store all the data. It is starting to get a little usable.
 
-### Requirements<a href="#table-of-contents">↑</a>
+### Requirements [↑][top]
 - [Python 3][2]
 
-### Todo<a href="#table-of-contents">↑</a>
+### Todo [↑][top]
 - Web interface
 - Curses interface
 - Graphical user interface
 
-### Troubleshooting<a href="#table-of-contents">↑</a>
+### Troubleshooting [↑][top]
 If the program misbehaves at a certain point please make sure before posting an
 issue that you run it with [Python 3][2].
 
-## Documentation<a href="#table-of-contents">↑</a>
-### Leitner system<a href="#table-of-contents">↑</a>
+## Documentation [↑][top]
+### Leitner system [↑][top]
 TODO
 
-### Usage of `cli.py`<a href="#table-of-contents">↑</a>
+### Usage of `cli.py` [↑][top]
 `cli.py [globaloptions] {list,load,remove,export,session} [options] [args]`
 
 - `globaloptions`
@@ -123,13 +123,13 @@ TODO
 	
 		Name of the deck to start the session with
 
-### Usage of `web.py`<a href="#table-of-contents">↑</a>
+### Usage of `web.py` [↑][top]
 NOT IMPLEMENTED YET
 
-## Licence<a href="#table-of-contents">↑</a>
+## Licence [↑][top]
 See `LICENCE` file.
 
-## Changelog<a href="#table-of-contents">↑</a>
+## Changelog [↑][top]
 *[Version 0.5](https://github.com/dopefishh/pycards/releases/tag/v0.5)*
 - Added statistics table.
 - CRTL+C will interrupt but will write statistics first.
