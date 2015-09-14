@@ -14,7 +14,7 @@
 - [Licence](#licence)
 - [Chancelog](#changelog)
 
-## Pycards [↑][top]
+## Pycards [↑][top][top][↑]
 ### Introduction<a href="#table-of-contents">↑</a>
 *pycards* is an engine with different frontends to memorize things using
 [flashcards][1]. *pycards* is written in [Python 3][2] and uses a [sqlite][3]
@@ -133,6 +133,7 @@ See `LICENCE` file.
 *[Version 0.5](https://github.com/dopefishh/pycards/releases/tag/v0.5)*
 - Added statistics table.
 - CRTL+C will interrupt but will write statistics first.
+
 *[Version 0.4](https://github.com/dopefishh/pycards/releases/tag/v0.4)*
 - Better command line parser, parser separated from main.
 - List, export and remove accept multiple decknames now.
