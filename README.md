@@ -14,7 +14,7 @@
 - [Licence](#licence)
 - [Chancelog](#changelog)
 
-## Pycards<a href="#table-of-contents">↑</a>
+## Pycards [↑][top]
 ### Introduction<a href="#table-of-contents">↑</a>
 *pycards* is an engine with different frontends to memorize things using
 [flashcards][1]. *pycards* is written in [Python 3][2] and uses a [sqlite][3]
@@ -163,3 +163,4 @@ See `LICENCE` file.
 [2]: https://www.python.org
 [3]: https://www.sqlite.org
 [4]: https://en.wikipedia.org/wiki/Leitner_system
+[top]: #table-of-contents
